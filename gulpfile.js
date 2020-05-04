@@ -3,7 +3,7 @@ var ts          = require("gulp-typescript");
 var inject      = require("gulp-inject");
 var uglify      = require("gulp-uglify");
 var concat      = require("gulp-concat");
-var del       = require("del");
+var del         = require("del");
 
 //各个平台对应的SDK
 const Platforms =
@@ -65,6 +65,7 @@ function clearSource(cb)
 {
     del("./bin/js/**/*");
     del("./bin/*.js");
+    del("./bin/*.html");
     cb();
 }
 
@@ -82,14 +83,15 @@ function TsToJs(cb)
     cb();
 }
 
-//打包js
+//向html中注入js
 function uglifyJS(cb)
 {
-    gulp.src("./bin/js/**/*.js")
-        .pipe(concat("code.js"))
-        .pipe(gulp.dest("./bin/code.js"));
+    gulp.src("./index.html")
+        .pipe(inject(gulp.src(['./bin/js/**/*.js', '!./bin/js/code.js'], { read: false }, {relative : true})))
+        .pipe(gulp.dest("./bin"));
+
     cb();
 }
 
 
-exports.default = gulp.series(clearSource, TsToJs);
+exports.default = gulp.series(clearSource, TsToJs,uglifyJS);

@@ -21,7 +21,7 @@ const LIBS_PATH         = "bin/libs/";
 const CODE_PATH         = "src/";
 
 //代码编译路径
-const CODE_COMPILE      = "bin/js";
+const CODE_COMPILE_PATH = "bin/js/";
 
 //平台SDK路径
 const PLATFORM_PATH     = "src/Platform/";
@@ -115,13 +115,10 @@ function setPublishProgress()
     exports.default = gulp.series(init,clearSource,loadPreLibs,loadPostLibs,TsToJs,injectJsToHtml,combineLibs);
 }
 
-function clearSource(cb)
+function clearSource()
 {
-    del(CODE_COMPILE).then(function()
-    {
-        del(OUTPUT_ROOT_PATH);
-        cb();
-    });
+    del(CODE_COMPILE_PATH).then();
+    return del(OUTPUT_ROOT_PATH);
 }
 
 //引入配置好的libs
@@ -149,7 +146,7 @@ function TsToJs()
 {
     return gulp.src(allScriptPath)
         .pipe(tsProject())
-        .pipe(gulp.dest(CODE_COMPILE))
+        .pipe(gulp.dest(CODE_COMPILE_PATH))
         .pipe(concat("code.js"))
         .pipe(uglify())
         .pipe(gulp.dest(OUTPUT_ROOT_PATH));
@@ -160,11 +157,11 @@ function injectJsToHtml(cb)
 {
     let preLibPath = OUTPUT_LIB_PATH + "preLibs/**/*.js";
     let postLibPath = OUTPUT_LIB_PATH + "postLibs/**/*.js";
-
+    console.error(OUTPUT_ROOT_PATH + '**/*.js');
     gulp.src(INDEX_PATH)
         .pipe(inject(gulp.src(preLibPath,{read : false}),{starttag : "<!-- inject:preLibs:{{ext}} -->"}))
         .pipe(inject(gulp.src(postLibPath,{read : false}),{starttag : "<!-- inject:postLibs:{{ext}} -->"}))
-        .pipe(inject(gulp.src([OUTPUT_ROOT_PATH + '**/*.js', '!code.js',"!" + preLibPath,"!" + postLibPath], { read: false })))
+        .pipe(inject(gulp.src([CODE_COMPILE_PATH + '**/*.js', '!code.js','!**/code.js',"!" + preLibPath,"!" + postLibPath], { read: false })))
         .pipe(gulp.dest(OUTPUT_ROOT_PATH));
     
     cb();

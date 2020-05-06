@@ -5,55 +5,99 @@ var uglify      = require("gulp-uglify");
 var concat      = require("gulp-concat");
 var del         = require("del");
 var jsdom       = require("gulp-jsdom");
+var fs          = require("fs");
+var gulpif      = require("gulp-if");
 
-//各个平台对应的SDK
-const Platforms =
-{
-    "wx": "WX_MINI_GAME",
-    "qq": "QQ_MINI_GAME",
-    "bd": "BD_MINI_GAME",
-}
+//项目资源根路径
+const ROOT_PATH         = "bin/"
 
-const Characters = 
-{
-    "wx": "微信",
-    "qq": "QQ",
-    "bd": "百度",
-}
+//index路径
+const INDEX_PATH        = "bin/index.html";
 
-//发布根目录
-var OUTPUT_ROOT_PATH = "";
+//库根路径
+const LIBS_PATH         = "bin/libs/";
+
+//代码根路径
+const CODE_PATH         = "src/";
+
+//代码编译路径
+const CODE_COMPILE      = "bin/js";
+
+//平台SDK路径
+const PLATFORM_PATH     = "src/Platform/";
+
+//发布根路径
+var OUTPUT_ROOT_PATH    = "";
+
+//库发布路径
+var OUTPUT_LIB_PATH     = "";
+
+//优先加载的libs
+var PRE_LIBS            = [];
+
+//没有特定顺序的libs
+var POST_LIBS           = [];
 
 /************************************** 初始化发布环境 START ***************************************/
-function init()
+function init(cb)
 {
+
     //获取发包平台
     platform = process.argv[2].split("-")[1];
 
-    //获取平台需要的ts代码
-    allScriptPath = [];
-    allScriptPath.push("./src/**/*.ts");
-
-    var curPlatform = Platforms[platform];
-    if (curPlatform == undefined)
+    fs.readFile("./publish.json",function(err,data)
     {
-        return false;
-    }
+        if(err)
+        {
+            console.error(err);
+            initFail();
+            return;
+        }
+        
+        var publish = data.toString();
+        publish = JSON.parse(publish);
 
-    //排除不需要的其他平台
-    for (let key in Platforms)
-    {
-        if (key != platform)
-            allScriptPath.push("!./src/Platform/" + Platforms[key] + ".ts");
-    }
+        //获取平台需要的ts代码
+        allScriptPath = [];
+        allScriptPath.push(CODE_PATH + "**/*.ts");
 
-    OUTPUT_ROOT_PATH = "release/" + platform + "/";
+        var curPlatform = publish[platform];
+        if (curPlatform == undefined)
+        {
+            initFail();
+            return;
+        }
+
+        //存储需要加载的libs
+        for(let key in curPlatform.preLibs)
+        {
+            PRE_LIBS.push(LIBS_PATH + curPlatform.preLibs[key]);            
+        }
+        for(let key in curPlatform.postLibs)
+        {
+            
+            POST_LIBS.push(LIBS_PATH + curPlatform.postLibs[key]);            
+        }
+
+        //排除不需要的其他平台
+        for (let key in publish)
+        {
+            if (key != platform)
+                allScriptPath.push("!" + PLATFORM_PATH + publish[key].SDK_NAME + ".ts");
+        }
+
+        OUTPUT_ROOT_PATH = "release/" + platform + "/";
+        OUTPUT_LIB_PATH  = OUTPUT_ROOT_PATH + "libs/";
+
+        console.log("当前发布平台:", publish[platform].Characters);        
+
+        cb();
+    });
 }
 
 function initFail(cb)
 {
-    console.error("请检查平台类型！");
-    cb();
+    console.error("请检查平台类型！");    
 }
 
 if (process.argv.length <= 2)
@@ -62,39 +106,65 @@ if (process.argv.length <= 2)
     return;
 }
 
-//检测初始化是否成功
-if(init() == false)
-{
-    exports.default = initFail;
-    return;
-}
-console.log("当前发布平台:", Characters[platform]);
+setPublishProgress();
 
 /************************************** 初始化发布环境 END ***************************************/
 
-function clearSource()
+function setPublishProgress()
 {
-   return del(OUTPUT_ROOT_PATH);
+    exports.default = gulp.series(init,clearSource,loadPreLibs,loadPostLibs,TsToJs,injectJsToHtml,combineLibs);
+}
+
+function clearSource(cb)
+{
+    del(CODE_COMPILE).then(function()
+    {
+        del(OUTPUT_ROOT_PATH);
+        cb();
+    });
+}
+
+//引入配置好的libs
+function loadPreLibs(cb)
+{   
+    if(PRE_LIBS.length <= 0) 
+        return cb();
+
+    return gulp.src(PRE_LIBS)
+                .pipe(gulp.dest(OUTPUT_LIB_PATH + "preLibs/"));
+}
+
+function loadPostLibs(cb)
+{   
+    if(POST_LIBS.length <= 0) 
+        return cb();
+
+    return gulp.src(POST_LIBS)
+                .pipe(gulp.dest(OUTPUT_LIB_PATH + "postLibs/"));
 }
 
 //ts转为js
 var tsProject = ts.createProject("./tsconfig.json");
 function TsToJs()
 {
-    let outPath = OUTPUT_ROOT_PATH + "res";
     return gulp.src(allScriptPath)
         .pipe(tsProject())
-        .pipe(gulp.dest(outPath))
-        .pipe(concat("../code.js"))
+        .pipe(gulp.dest(CODE_COMPILE))
+        .pipe(concat("code.js"))
         .pipe(uglify())
-        .pipe(gulp.dest(outPath));
+        .pipe(gulp.dest(OUTPUT_ROOT_PATH));
 }
 
 //向html中注入js
 function injectJsToHtml(cb)
 {
-    gulp.src("./bin/index.html")
-        .pipe(inject(gulp.src([OUTPUT_ROOT_PATH + 'res/**/*.js', '!./code.js'], { read: false }, {relative : true})))
+    let preLibPath = OUTPUT_LIB_PATH + "preLibs/**/*.js";
+    let postLibPath = OUTPUT_LIB_PATH + "postLibs/**/*.js";
+
+    gulp.src(INDEX_PATH)
+        .pipe(inject(gulp.src(preLibPath,{read : false}),{starttag : "<!-- inject:preLibs:{{ext}} -->"}))
+        .pipe(inject(gulp.src(postLibPath,{read : false}),{starttag : "<!-- inject:postLibs:{{ext}} -->"}))
+        .pipe(inject(gulp.src([OUTPUT_ROOT_PATH + '**/*.js', '!code.js',"!" + preLibPath,"!" + postLibPath], { read: false })))
         .pipe(gulp.dest(OUTPUT_ROOT_PATH));
     
     cb();
@@ -103,7 +173,7 @@ function injectJsToHtml(cb)
 //打包需要用的libs
 function combineLibs()
 {
-   return gulp.src("./bin/index.html")
+   return gulp.src(INDEX_PATH)
     .pipe(jsdom(function(document)
     {
         let allScript = document.getElementsByTagName("script");
@@ -114,23 +184,18 @@ function combineLibs()
             let splits = path.split('/');
             let prefix = splits[0];
             if(prefix && prefix == "libs")
-            {
-                // console.error(splits);
-                let outPath = OUTPUT_ROOT_PATH + "libs/";
+            {                
+                let outPath = OUTPUT_LIB_PATH;
                 if(splits.length >= 3)
                 {
                     for(let i = 1; i < splits.length - 1;i++)
                         outPath += splits[i];
                 }
 
-                let realPath = "bin/" + path;                 
+                let realPath = ROOT_PATH + path;                 
                 gulp.src(realPath)   
                 .pipe(gulp.dest(outPath));
             }
         }
     }));
 }
-
-
-
-exports.default = gulp.series(clearSource, TsToJs,injectJsToHtml,combineLibs);

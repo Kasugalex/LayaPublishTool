@@ -9,13 +9,14 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "del": "^5.1.0",
     "gulp": "^4.0.2",
     "gulp-concat": "^2.6.1",
+    "gulp-if": "^3.0.0",
     "gulp-inject": "^5.0.5",
+    "gulp-jsdom": "^1.1.0",
     "gulp-typescript": "^6.0.0-alpha.1",
     "gulp-uglify": "^3.0.2",
-    "typescript": "^3.8.3",
-    "del": "^5.1.0",
-    "gulp-jsdom": "^1.1.0"
+    "typescript": "^3.8.3"
   }
 }

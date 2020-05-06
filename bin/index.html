@@ -19,6 +19,11 @@
 
 <body>
 	
+
+	<!-- 预先加载的libs -->
+	<!-- inject:preLibs:js -->
+	<!-- endinject -->
+
 	<!--核心包，封装了显示对象渲染，事件，时间管理，时间轴动画，缓动，消息交互,socket，本地存储，鼠标触摸，声音，加载，颜色滤镜，位图字体等-->
 	<script type="text/javascript" src="libs/min/laya.core.min.js"></script>
 
@@ -39,8 +44,12 @@
 
 	<!--用户自定义顺序文件添加到这里-->
 	<!--jsfile--Custom-->
-	<script type="text/javascript" src="libs/pathfinding/astar.js"></script>
 	<!--jsfile--Custom-->
+
+	<!-- 没有特定顺序加载的libs -->
+	<!-- inject:postLibs:js -->
+	<!-- endinject -->
+
 	<!--自定义的js(src文件夹下)文件自动添加到下面jsfile模块标签里面里-->
 	<!--删除标签，ide不会自动添加js文件，请谨慎操作-->
 	<!-- inject:js -->

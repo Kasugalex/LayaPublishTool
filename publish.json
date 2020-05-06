@@ -1,0 +1,55 @@
+{
+
+    "qq" : 
+    {
+        "SDK_NAME" :"QQ_MINI_GAME",
+        "Characters" : "QQ",
+        "preLibs" : 
+        {
+            "tea" : "TEA/Version_1/rangers.js"
+        },
+        "postLibs":
+        {
+            "astar" : "pathfinding/astar.js"
+        }
+    },
+    "wx" : 
+    {
+        "SDK_NAME" :"WX_MINI_GAME",
+        "Characters" : "微信",
+        "preLibs" : 
+        {
+
+        },
+        "postLibs":
+        {
+            "astar" : "pathfinding/astar.js"
+        }
+    },
+    "bd" : 
+    {
+        "SDK_NAME" :"BD_MINI_GAME",
+        "Characters" : "百度",
+        "preLibs" : 
+        {
+            "tea" : "TEA/Version_2/rangers.js"
+        },
+        "postLibs":
+        {
+            
+        }
+    },
+    "tt" : 
+    {
+        "SDK_NAME" :"TT_MINI_GAME",
+        "Characters" : "头条",
+        "preLibs" : 
+        {
+            
+        },
+        "postLibs":
+        {
+            
+        }
+    }
+}

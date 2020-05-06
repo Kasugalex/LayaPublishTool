@@ -4,6 +4,7 @@ var inject      = require("gulp-inject");
 var uglify      = require("gulp-uglify");
 var concat      = require("gulp-concat");
 var del         = require("del");
+var jsdom       = require("gulp-jsdom");
 
 //各个平台对应的SDK
 const Platforms =
@@ -20,6 +21,8 @@ const Characters =
     "bd": "百度",
 }
 
+//发布根目录
+var OUTPUT_ROOT_PATH = "";
 
 /************************************** 初始化发布环境 START ***************************************/
 function init()
@@ -31,7 +34,11 @@ function init()
     allScriptPath = [];
     allScriptPath.push("./src/**/*.ts");
 
-    // var curPlatform = Platforms[platform];
+    var curPlatform = Platforms[platform];
+    if (curPlatform == undefined)
+    {
+        return false;
+    }
 
     //排除不需要的其他平台
     for (let key in Platforms)
@@ -39,59 +46,91 @@ function init()
         if (key != platform)
             allScriptPath.push("!./src/Platform/" + Platforms[key] + ".ts");
     }
+
+    OUTPUT_ROOT_PATH = "release/" + platform + "/";
 }
 
 function initFail(cb)
 {
-    console.error("发包终止！");
+    console.error("请检查平台类型！");
     cb();
 }
 
 if (process.argv.length <= 2)
 {
-    console.error("请输入发布渠道");
-
     exports.default = initFail;
     return;
 }
 
-init();
-
+//检测初始化是否成功
+if(init() == false)
+{
+    exports.default = initFail;
+    return;
+}
 console.log("当前发布平台:", Characters[platform]);
 
 /************************************** 初始化发布环境 END ***************************************/
 
-function clearSource(cb)
+function clearSource()
 {
-    del("./bin/js/**/*");
-    del("./bin/*.js");
-    del("./bin/*.html");
-    cb();
+   return del(OUTPUT_ROOT_PATH);
 }
 
 //ts转为js
 var tsProject = ts.createProject("./tsconfig.json");
-function TsToJs(cb)
+function TsToJs()
 {
+    let outPath = OUTPUT_ROOT_PATH + "res";
     return gulp.src(allScriptPath)
         .pipe(tsProject())
-        .pipe(gulp.dest(tsProject.config.compilerOptions.outDir))
-        .pipe(concat("code.js"))
+        .pipe(gulp.dest(outPath))
+        .pipe(concat("../code.js"))
         .pipe(uglify())
-        .pipe(gulp.dest("./bin/js"));
+        .pipe(gulp.dest(outPath));
+}
+
+//向html中注入js
+function injectJsToHtml(cb)
+{
+    gulp.src("./bin/index.html")
+        .pipe(inject(gulp.src([OUTPUT_ROOT_PATH + 'res/**/*.js', '!./code.js'], { read: false }, {relative : true})))
+        .pipe(gulp.dest(OUTPUT_ROOT_PATH));
     
     cb();
 }
 
-//向html中注入js
-function uglifyJS(cb)
+//打包需要用的libs
+function combineLibs()
 {
-    gulp.src("./index.html")
-        .pipe(inject(gulp.src(['./bin/js/**/*.js', '!./bin/js/code.js'], { read: false }, {relative : true})))
-        .pipe(gulp.dest("./bin"));
+   return gulp.src("./bin/index.html")
+    .pipe(jsdom(function(document)
+    {
+        let allScript = document.getElementsByTagName("script");
+        for(let key in allScript)
+        {
+            let path = allScript[key].src;
+            if(path == undefined) continue;
+            let splits = path.split('/');
+            let prefix = splits[0];
+            if(prefix && prefix == "libs")
+            {
+                // console.error(splits);
+                let outPath = OUTPUT_ROOT_PATH + "libs/";
+                if(splits.length >= 3)
+                {
+                    for(let i = 1; i < splits.length - 1;i++)
+                        outPath += splits[i];
+                }
 
-    cb();
+                let realPath = "bin/" + path;                 
+                gulp.src(realPath)   
+                .pipe(gulp.dest(outPath));
+            }
+        }
+    }));
 }
 
 
-exports.default = gulp.series(clearSource, TsToJs,uglifyJS);
+
+exports.default = gulp.series(clearSource, TsToJs,injectJsToHtml,combineLibs);

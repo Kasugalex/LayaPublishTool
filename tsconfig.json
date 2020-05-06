@@ -5,7 +5,6 @@
         "target": "es5",
         "allowJs": false,
         "sourceMap": false,
-        "outDir": "./bin/js",
         "noImplicitReturns": false,
         "allowUnreachableCode": false
     }

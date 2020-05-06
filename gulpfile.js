@@ -7,6 +7,8 @@ var del         = require("del");
 var jsdom       = require("gulp-jsdom");
 var fs          = require("fs");
 var gulpif      = require("gulp-if");
+var glob        = require("glob");
+var path        = require("path");
 
 //项目资源根路径
 const ROOT_PATH         = "bin/"
@@ -110,11 +112,13 @@ setPublishProgress();
 
 /************************************** 初始化发布环境 END ***************************************/
 
+//这里设置gulp打包顺序
 function setPublishProgress()
 {
     exports.default = gulp.series(init,clearSource,loadPreLibs,loadPostLibs,TsToJs,injectJsToHtml,combineLibs);
 }
 
+//清空发包路径
 function clearSource()
 {
     del(CODE_COMPILE_PATH).then();
@@ -130,7 +134,6 @@ function loadPreLibs(cb)
     return gulp.src(PRE_LIBS)
                 .pipe(gulp.dest(OUTPUT_LIB_PATH + "preLibs/"));
 }
-
 function loadPostLibs(cb)
 {   
     if(POST_LIBS.length <= 0) 
@@ -152,20 +155,25 @@ function TsToJs()
         .pipe(gulp.dest(OUTPUT_ROOT_PATH));
 }
 
+var libsPath = [];
+
 //向html中注入js
 function injectJsToHtml(cb)
 {
     let preLibPath = OUTPUT_LIB_PATH + "preLibs/**/*.js";
     let postLibPath = OUTPUT_LIB_PATH + "postLibs/**/*.js";
-    console.error(OUTPUT_ROOT_PATH + '**/*.js');
-    gulp.src(INDEX_PATH)
+
+
+    getLibs(OUTPUT_LIB_PATH,libsPath);
+
+    return gulp.src(INDEX_PATH)
         .pipe(inject(gulp.src(preLibPath,{read : false}),{starttag : "<!-- inject:preLibs:{{ext}} -->"}))
         .pipe(inject(gulp.src(postLibPath,{read : false}),{starttag : "<!-- inject:postLibs:{{ext}} -->"}))
         .pipe(inject(gulp.src([CODE_COMPILE_PATH + '**/*.js', '!code.js','!**/code.js',"!" + preLibPath,"!" + postLibPath], { read: false })))
         .pipe(gulp.dest(OUTPUT_ROOT_PATH));
     
-    cb();
 }
+
 
 //打包需要用的libs
 function combineLibs()
@@ -189,10 +197,53 @@ function combineLibs()
                         outPath += splits[i];
                 }
 
-                let realPath = ROOT_PATH + path;                 
+                let realPath = ROOT_PATH + path;          
                 gulp.src(realPath)   
-                .pipe(gulp.dest(outPath));
+                .pipe(gulp.dest(outPath));        
+                
+                //gulp.src是异步的，这里直接存上用
+                let relativePath =  realPath.split(ROOT_PATH)[1];
+                libsPath.push(relativePath);
+
             }
         }
+
+        requireLibs();
     }));
+}
+
+
+//得到引用libs
+function getLibs(path,filesList = [])
+{
+    var files = fs.readdirSync(path);
+    files.forEach(function (itm, index) {
+        var stat = fs.statSync(path + itm);
+        if (stat.isDirectory()) 
+        {
+            getLibs(path + itm + "/", filesList)
+        } 
+        else 
+        {
+            path = path.split(OUTPUT_ROOT_PATH)[1];
+            filesList.push(path + itm);
+        }
+
+    })
+}
+
+//创建libs.js
+function requireLibs()
+{   
+    let path = OUTPUT_ROOT_PATH + "libs.js";
+    let content = "";
+    for(let key in libsPath)
+    {
+        content += "require(\""  + libsPath[key] + "\");\n";
+    }
+
+    fs.writeFileSync(path,content,function(err)
+    {
+        if(err) throw err;
+    })
 }

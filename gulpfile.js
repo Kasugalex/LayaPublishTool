@@ -7,8 +7,7 @@ var del         = require("del");
 var jsdom       = require("gulp-jsdom");
 var fs          = require("fs");
 var gulpif      = require("gulp-if");
-var glob        = require("glob");
-var path        = require("path");
+var cmd         = require("node-cmd");
 
 //项目资源根路径
 const ROOT_PATH         = "bin/"
@@ -246,4 +245,14 @@ function requireLibs()
     {
         if(err) throw err;
     })
+
 }
+
+//测试cmd命令
+// function cmdTest()
+// {
+//     cmd.get("ipconfig",function(err,data,stderr)
+//     {
+//         console.error(data);
+//     })
+// }

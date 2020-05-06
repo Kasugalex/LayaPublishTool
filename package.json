@@ -17,6 +17,7 @@
     "gulp-jsdom": "^1.1.0",
     "gulp-typescript": "^6.0.0-alpha.1",
     "gulp-uglify": "^3.0.2",
+    "node-cmd": "^3.0.0",
     "typescript": "^3.8.3"
   }
 }

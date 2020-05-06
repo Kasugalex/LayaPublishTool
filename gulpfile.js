@@ -73,7 +73,7 @@ function clearSource(cb)
 var tsProject = ts.createProject("./tsconfig.json");
 function TsToJs(cb)
 {
-    gulp.src(allScriptPath)
+    return gulp.src(allScriptPath)
         .pipe(tsProject())
         .pipe(gulp.dest(tsProject.config.compilerOptions.outDir))
         .pipe(concat("code.js"))

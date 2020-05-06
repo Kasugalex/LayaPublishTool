@@ -51,5 +51,18 @@
         {
             
         }
+    },
+    "vv" : 
+    {
+        "SDK_NAME" :"VV_MINI_GAME",
+        "Characters" : "VIVO",
+        "preLibs" : 
+        {
+            "tea" : "TEA/Version_2/rangers.js"
+        },
+        "postLibs":
+        {
+            
+        }
     }
 }

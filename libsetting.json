@@ -1,0 +1,15 @@
+{
+    "description": "除了数组中的平台，其他平台都需要在libs中加入content",
+    "astar":
+    {
+        "description" : "寻路库",
+        "ban" : ["vv","op"],
+        "content" : "let path = require(\"%s\");\nwindow.astar = path.astar;\nwindow.Graph = path.Graph;\n"
+    },
+    "rangers":
+    {
+        "description" : "新的TEA打点",
+        "ban" : ["vv","op"],
+        "content" : "window.$$TEA = require(\"%s\");"
+    }
+}

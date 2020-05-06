@@ -8,6 +8,7 @@ var jsdom       = require("gulp-jsdom");
 var fs          = require("fs");
 var gulpif      = require("gulp-if");
 var cmd         = require("node-cmd");
+var util        = require("util");
 
 //项目资源根路径
 const ROOT_PATH         = "bin/"
@@ -44,7 +45,7 @@ function init(cb)
 {
 
     //获取发包平台
-    platform = process.argv[2].split("-")[1];
+    platform = process.argv[2].split("--")[1];
 
     fs.readFile("./publish.json",function(err,data)
     {
@@ -211,6 +212,8 @@ function combineLibs()
     }));
 }
 
+//库名：库路径
+var customLibsName = {};
 
 //得到引用libs
 function getLibs(path,filesList = [])
@@ -225,7 +228,13 @@ function getLibs(path,filesList = [])
         else 
         {
             path = path.split(OUTPUT_ROOT_PATH)[1];
-            filesList.push(path + itm);
+            let fullPath = path + itm;
+
+            //保存库的名字和对应路径，方便添加扩展到libs.js
+            let libName = itm.split('.')[0];
+            customLibsName[libName] = fullPath;
+
+            filesList.push(fullPath);
         }
 
     })
@@ -234,18 +243,65 @@ function getLibs(path,filesList = [])
 //创建libs.js
 function requireLibs()
 {   
-    let path = OUTPUT_ROOT_PATH + "libs.js";
-    let content = "";
-    for(let key in libsPath)
-    {
-        content += "require(\""  + libsPath[key] + "\");\n";
-    }
 
-    fs.writeFileSync(path,content,function(err)
+    fs.readFile("./libsetting.json",function(err,data)
     {
-        if(err) throw err;
-    })
+        if(err)
+        {
+            console.error(err);
+            return;
+        }
+        
+        var libSetting = data.toString();
+        libSetting = JSON.parse(libSetting);
 
+        //添加到libs.js结尾的字符串
+        let endContent = "";
+        
+        //是否是被禁止的平台
+        let isBan = false;
+
+        for(let libName in customLibsName)
+        {
+            let jsonInfo = libSetting[libName];
+            if(jsonInfo == undefined || jsonInfo == null) continue;
+            let ban = jsonInfo.ban;
+
+            for(let key in ban)
+            {
+                if(ban[key] == platform)
+                {
+                    isBan = true;
+                    break;
+                }
+            }
+            if(isBan) break;
+            
+            let curLibPath = customLibsName[libName];
+            let content = util.format(jsonInfo.content,curLibPath);
+            endContent += content;  
+            
+            //删除libsPath里的重复库
+            let index = libsPath.indexOf(curLibPath);
+            if(index >= 0)
+                libsPath.splice(index,1);
+
+        }
+
+        let path = OUTPUT_ROOT_PATH + "libs.js";
+        let content = "";
+        for(let key in libsPath)
+        {
+            content += "require(\""  + libsPath[key] + "\");\n";
+        }
+
+        content += endContent;
+    
+        fs.writeFileSync(path,content,function(err)
+        {
+            if(err) throw err;
+        })
+    });
 }
 
 //测试cmd命令

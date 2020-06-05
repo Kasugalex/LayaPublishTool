@@ -1,0 +1,6 @@
+*
+{
+    touch-action: none;
+    -ms-touch-action: none;
+    -webkit-touch-callout: none;
+}

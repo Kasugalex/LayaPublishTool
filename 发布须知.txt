@@ -1,0 +1,31 @@
+
+发布之前会自动编译，无须手动编译
+
+//首次发布
+直接在laya中键入ctrl+~ 调起终端,一定要选择powershell（带有管理员权限的cmd），首次发布需要输入 npm install 安装发布环境。
+
+//发布oppo 平台需要自己配置发布环境
+oppo:https://open.oppomobile.com/wiki/doc#id=10516 看小游戏入门第二分页：打包oppo小游戏rpk
+
+//发布正式CDN
+终端输入 gulp --平台名(平台名对应publish.json中的key值) 即可发布。
+gulp --qq 则可以发布qq平台到release/qq/目录下。
+
+//发布测试CDN
+输入 gulp --平台名 --t 即可发布Test_Cdn包
+例如 gulp --qq --t 
+
+//发布资源
+gulp --res  默认发布到publish_web中
+
+//关于自动替换
+需要在publish.json的copyPath配置，默认为空，不会自动替换。
+
+//关于code.js压缩
+默认是压缩的，不想压缩可以设置CODE_UGLIFY为false
+
+//publish.json
+用于发布相关配置,包括libs,css，includeFile等配置
+
+//libsetting.json
+创建libs.js时，额外添加的代码

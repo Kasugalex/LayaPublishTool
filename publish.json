@@ -1,68 +1,315 @@
 {
-
-    "qq" : 
-    {
-        "SDK_NAME" :"QQ_MINI_GAME",
-        "Characters" : "QQ",
-        "preLibs" : 
-        {
-            "tea" : "TEA/Version_1/rangers.js"
-        },
-        "postLibs":
-        {
-            "astar" : "pathfinding/astar.js"
-        }
-    },
     "wx" : 
     {
-        "SDK_NAME" :"WX_MINI_GAME",
+        "SDK_DIR_des" : "SDK对应目录名称,默认放在 src/Platform下",
+        "SDK_DIR" :"WX",
+        "SDK_NAME" : "WX_PLATFORM",
         "Characters" : "微信",
         "preLibs" : 
         {
+            "tea" : "TEA/Other/rangers.js"
+        },
+        "postLibs":
+        {
+            "MGOBE" : "mgobe/MGOBE.js",
+            "wxmini" : "laya.wxmini.js"
+        },
+
+        "copyPath_des" : "对应开发者工具的code.js目录，默认为空，则不替换",
+        "copyPath" : 
+        {
+            "libs" : "../publish_wx/libs",
+            "libsJS" : "../publish_wx/libs.js",
+            "codeJS" : "../publish_wx/subpackage/code.js"
+        },
+        "includeFile_des" : "需要跟随发布一起打包进release下的文件,key值为文件名",
+        "includeFile":
+        {
+
+        },
+        "copyLibs" :
+        {
+            "moyangsdk" : "bin/libs/moyang/wx"
+        },
+        "externalJS_des" : "需要引入的外部链接js",
+        "externalJS":{}
+    },
+
+    "qq" : 
+    {
+        "SDK_DIR" :"QQ",
+        "SDK_NAME" : "QQ_PLATFORM",
+        "Characters" : "QQ",
+        "preLibs" : 
+        {
+            "tea" : "TEA/Other/rangers.js"
+        },
+        "postLibs":
+        {
+            "MGOBE" : "mgobe/MGOBE.js",
+            "qqmini" : "laya.qqmini.js"
+        },
+        "copyPath" : 
+        {
+            "libs" : "../publish_qq/libs",
+            "libsJS" : "../publish_qq/libs.js",
+            "codeJS" : "../publish_qq/subpackage/code.js"
+        },
+        "copyLibs" :
+        {
+            "moyangsdk" : "bin/libs/moyang/qq"
+        }
+    },
+
+    "tt" : 
+    {
+        "SDK_DIR" :"TT",
+        "SDK_NAME" : "TT_PLATFORM",
+        "Characters" : "头条",
+        "preLibs" : 
+        {
+            "tea" : "TEA/Other/rangers.js"
+        },
+        "postLibs":
+        {
+            "MGOBE" : "mgobe/MGOBE.js",
+            "ttmini" : "laya.wxmini.js"
+        },
+        "copyPath" : 
+        {
+            "libs" : "../publish_tt/libs",
+            "libsJS" : "../publish_tt/libs.js",
+            "codeJS" : "../publish_tt/code.js"
+        }
+    },
+
+    "op" : 
+    {
+        "SDK_DIR" :"OP",
+        "SDK_NAME" : "OP_PLATFORM",
+        "Characters" : "OPPO",
+        "preLibs" : 
+        {
+            "tea" : "TEA/OV/rangers.js"
+        },
+        "postLibs":
+        {
+            "MGOBE" : "mgobe/MGOBE.js",
+            "opmini" : "laya.quickgamemini.js"
+        },
+        "copyPath" : 
+        {
+            "libs" : "./release/oppogame/quickgame/libs",
+            "libsJS" : "./release/oppogame/quickgame/libs.js",
+            "codeJS" : "./release/oppogame/quickgame/code.js"
+        }
+    },
+
+    "vv" : 
+    {
+        "SDK_DIR" :"VV",
+        "SDK_NAME" : "VV_PLATFORM",
+        "Characters" : "VIVO",
+        "preLibs" : 
+        {
+            "tea" : "TEA/OV/rangers.js"
+        },
+        "postLibs":
+        {
+            "MGOBE" : "mgobe/MGOBE.js",
+            "wxmini" : "laya.vvmini.js"
+        },
+        "copyPath" : 
+        {
+            "codeJS" : "../publish_vv/quickgame/engine/code.js"
+        }
+    },
+
+    "ssjj" : 
+    {
+        "SDK_DIR" :"SSJJ",
+        "SDK_NAME" : "SSJJ_PLATFORM",
+        "Characters" : "4399",
+        "preLibs" : 
+        {
 
         },
         "postLibs":
         {
-            "astar" : "pathfinding/astar.js"
-        }
+            "MGOBE" : "mgobe/MGOBE.js"
+            
+        },
+        "externalJS":
+        {
+            "js" : "https://cdn.h5wan.4399sj.com/h5web-frame/dist/static/js/api.js"
+        },
+        "copyPath" : null
     },
+
     "bd" : 
     {
-        "SDK_NAME" :"BD_MINI_GAME",
+        "SDK_DIR" :"BD",
+        "SDK_NAME" : "BD_PLATFORM",
         "Characters" : "百度",
         "preLibs" : 
         {
-            "tea" : "TEA/Version_2/rangers.js"
+            "tea" : "TEA/Other/rangers.js"
         },
         "postLibs":
         {
-            
+            "MGOBE" : "mgobe/bd/MGOBE.js",
+            "wxmini" : "laya.bdmini.js"
+        },
+        "copyPath" : 
+        {
+            "libs" : "../publish_bd/libs",
+            "libsJS" : "../publish_bd/libs.js",
+            "codeJS" : "../publish_bd/code.js"
         }
     },
-    "tt" : 
+
+    "test" :
     {
-        "SDK_NAME" :"TT_MINI_GAME",
-        "Characters" : "头条",
+        "SDK_DIR" :"TEST",
+        "SDK_NAME" : "_PLATFORM",
+        "Characters" : "PC测试",
         "preLibs" : 
         {
             
         },
         "postLibs":
         {
+            "MGOBE" : "mgobe/MGOBE.js"
             
-        }
+        },
+        "copyPath" : null
     },
-    "vv" : 
+
+    "uc" :
     {
-        "SDK_NAME" :"VV_MINI_GAME",
-        "Characters" : "VIVO",
+        "SDK_DIR" :"UC",
+        "SDK_NAME" : "UC_PLATFORM",
+        "Characters" : "UC",
         "preLibs" : 
         {
-            "tea" : "TEA/Version_2/rangers.js"
+            "tea" : "TEA/Other/rangers.js"
         },
         "postLibs":
         {
+            "MGOBE" : "mgobe/MGOBE.js"
             
+        },
+        "copyPath" : 
+        {
+            "libs" : "../publish_uc/libs",
+            "libsJS" : "../publish_uc/libs.js",
+            "codeJS" : "../publish_uc/code.js",
+            "html" : "../publish_uc/index.html"
+        },
+        "includeFile":
+        {
+            "uc_config.json" : "../publish_uc/uc.config.json"
         }
+        ,
+        "css" : 
+        {
+            "headCss.css": "./SparkPackage/Resources/css/uc/headCss.css"
+        }
+    },
+    
+    "mi" :
+    {
+        "SDK_DIR" :"MI",
+        "SDK_NAME" : "MI_PLATFORM",
+        "Characters" : "小米",
+        "preLibs" : 
+        {
+            "tea" : "TEA/Other/rangers.js"
+        },
+        "postLibs":
+        {
+            "MGOBE" : "mgobe/MGOBE.js"
+            
+        },
+        "copyPath" : null
+    },
+    
+    "mz" :
+    {
+        "SDK_DIR" :"MZ",
+        "SDK_NAME" : "MZ_PLATFORM",
+        "Characters" : "魅族",
+        "preLibs" : 
+        {
+            "tea" : "TEA/Other/rangers.js"
+        },
+        "postLibs":
+        {
+            "MGOBE" : "mgobe/MGOBE.js"            
+        },
+        "copyPath" :
+        {
+
+        },
+        "includeFile":
+        {
+            "sign" : "./mzsign/",
+            "icon512.png" : "./icon/icon512.png"
+        }
+    },
+
+    "native_android" :
+    {
+        "SDK_DIR" :"NATIVE_ANDROID",
+        "SDK_NAME" : "NA_PLATFORM",
+        "Characters" : "超休闲",
+        "preLibs" : 
+        {
+            "tea" : "TEA/Other/rangers.js"
+        },
+        "postLibs":
+        {
+            "MGOBE" : "mgobe/MGOBE.js"
+            
+        },
+        "copyPath" : null
+    },
+
+    "native_ios" :
+    {
+        "SDK_DIR" :"NATIVE_IOS",
+        "SDK_NAME" : "NI_PLATFORM",
+        "Characters" : "IOS原生包",
+        "preLibs" : 
+        {
+            "tea" : "TEA/Other/rangers.js"
+        },
+        "postLibs":
+        {
+            "MGOBE" : "mgobe/MGOBE.js"            
+        },
+        "copyPath" : null
+    },
+    "bl" :
+    {
+        "SDK_DIR" :"BL",
+        "SDK_NAME" : "BL_PLATFORM",
+        "Characters" : "B站",
+        "preLibs" :
+        {
+            "tea" : "TEA/Other/rangers.js"
+        },
+        "postLibs":
+        {
+            "MGOBE" : "mgobe/MGOBE.js",
+            "blmini" : "laya.bilimini.js"
+        },
+        "copyPath" :
+        {
+            "libs" : "../publish_bl/libs",
+            "libsJS" : "../publish_bl/libs.js",
+            "codeJS" : "../publish_bl/subpackage/code.js"
+        },
+        "buildPath" : "../publish_bl/"
     }
 }

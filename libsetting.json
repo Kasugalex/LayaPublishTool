@@ -3,13 +3,19 @@
     "astar":
     {
         "description" : "寻路库",
-        "ban" : ["vv","op"],
-        "content" : "let path = require(\"%s\");\nwindow.astar = path.astar;\nwindow.Graph = path.Graph;\n"
+        "ban" : ["vv","op","mz"],
+        "content" : "let path = require(\"%s\");\nwindow.astar = path.astar;\nwindow.Graph = path.Graph;"
     },
     "rangers":
     {
         "description" : "新的TEA打点",
         "ban" : ["vv","op"],
         "content" : "window.$$TEA = require(\"%s\");"
+    },
+    "crypto-js":
+    {
+        "description" : "MD5",
+        "ban" : [],
+        "content" : "window.CryptoJS = require(\"%s\");"
     }
 }

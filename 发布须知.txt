@@ -29,3 +29,5 @@ gulp --res  默认发布到publish_web中
 
 //libsetting.json
 创建libs.js时，额外添加的代码
+
+//魅族打包，先用他自己的工具生成一个release的签名文件，放到当前目录的mzsign下就行辣
